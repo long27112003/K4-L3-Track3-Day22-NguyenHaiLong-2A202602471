@@ -15,6 +15,7 @@
 
 # %%
 import json
+import os
 import sys
 from pathlib import Path
 
@@ -26,6 +27,9 @@ import torch
 
 from lab22 import config as C
 from lab22 import modeling as MD
+
+# The DPO adapter records its SFT base as a repo-relative path.
+os.chdir(C.REPO_ROOT)
 
 assert torch.cuda.is_available()
 assert (C.DPO_ADAPTER / "adapter_config.json").exists(), "Run NB3 first"

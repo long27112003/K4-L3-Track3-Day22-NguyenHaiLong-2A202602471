@@ -38,6 +38,10 @@ from lab22 import data as D
 from lab22 import judge as J
 from lab22 import modeling as MD
 
+# PEFT stores the SFT base as `models/sft-merged` in adapter_config.json.
+# Resolve that relative path from the repository even when Jupyter starts in notebooks/.
+os.chdir(C.REPO_ROOT)
+
 # Relative overrides (e.g. from `make beta-sweep`) resolve against the repo, not the cwd.
 _override = Path(os.environ.get("DPO_ADAPTER_OVERRIDE", C.DPO_ADAPTER))
 DPO_ADAPTER = _override if _override.is_absolute() else C.REPO_ROOT / _override

@@ -26,6 +26,7 @@
 
 # %%
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -36,6 +37,9 @@ sys.path.insert(0, str(ROOT))
 import torch
 
 from lab22 import config as C
+
+# lm-eval loads the DPO adapter whose SFT base is repo-relative.
+os.chdir(C.REPO_ROOT)
 
 assert torch.cuda.is_available()
 assert C.SFT_MERGED.exists() and C.DPO_ADAPTER.exists(), "Run NB1 + NB3 first"
