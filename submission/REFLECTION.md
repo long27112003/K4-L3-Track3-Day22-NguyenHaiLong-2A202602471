@@ -79,7 +79,7 @@ NB7 chạy 60 bước GRPO, bốn generations mỗi prompt trên `vuongtsc/vi-gs
 - [x] NB7: reward curve, accuracy trước/sau và nhiễu.
 - [ ] β-sweep: chưa chạy ba giá trị β.
 - [x] Chấm chéo API: OpenAI `gpt-4o-mini`, agreement 63,8% trên 58 prompt.
-- [ ] HF Hub: chưa đẩy adapter và model card.
+- [x] HF Hub: adapter DPO, tokenizer và model card công khai tại https://huggingface.co/long2711/lab22-dpo-vn-long-2A202602471. Adapter cần mô hình SFT đã gộp từ NB1 để tái tạo pipeline.
 
 ## Điều bất ngờ nhất
 
