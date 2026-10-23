@@ -25,6 +25,8 @@ Mô hình gốc: `unsloth/Qwen3-4B-Instruct-2507-unsloth-bnb-4bit`. SFT mini dù
 
 Hình `screenshots/03-dpo-reward-curves.png` tách `chosen` và `rejected` ở train và held-out. Reward ngầm ở điểm khởi đầu xấp xỉ 0 do policy vừa được khởi tạo từ SFT, trùng reference. Cuối quá trình, reward chosen train 0,1736 cao hơn rejected 0,1144; gap dương 0,0592. Ở held-out, chosen 0,1772 và rejected 0,1358, gap 0,0414. Cả hai reward đều tăng, nhưng chosen tăng nhiều hơn; đây là `INTENDED` theo hàm chẩn đoán. Vì rejected cũng tăng, không thể diễn đạt rằng DPO đã hạ tuyệt đối xác suất rejected. Kết quả held-out thấp hơn train và accuracy 62% cho thấy tín hiệu ưu tiên có chuyển sang prompt chưa thấy, song chưa đủ để khẳng định mô hình cải thiện mạnh về chất lượng sinh. Khi chỉ nhìn gap, người đọc có thể bỏ qua hiện tượng likelihood displacement: chosen giảm mà rejected giảm nhanh hơn vẫn tạo gap dương. Lần chạy này không thuộc trường hợp đó, nhưng DPO-norm và LD-DPO trong NB3b có dấu hiệu ấy. Cần kết hợp đường reward, held-out và đánh giá câu trả lời thực tế thay vì lấy một chỉ số duy nhất.
 
+NB0 còn cho thấy tổng log-xác suất cộng qua nhiều token sẽ âm hơn ở câu dài, nên độ dài là một biến gây nhiễu khi giải thích DPO trên dữ liệu có `chosen` dài hơn `rejected` trong 65,875% cặp train. SimPO và ORPO dùng log-xác suất trung bình theo token trong phần ưu tiên để giảm tác động trực tiếp của độ dài; điều đó không tự bảo đảm câu trả lời hay hơn, nên tôi vẫn đối chiếu win rate theo các cặp có độ dài gần nhau ở §4.
+
 ## 4. So sánh SFT và SFT+DPO
 
 | Nhóm | n | DPO thắng | SFT thắng | Hòa | DPO win rate, CI 95% |
@@ -34,6 +36,8 @@ Hình `screenshots/03-dpo-reward-curves.png` tách `chosen` và `rejected` ở t
 | Safety | 4 | 0 | 1 | 3 | 37,5% [12,5%, 50%] |
 
 Trên held-out, SFT dài trung bình 547,9 ký tự và DPO 585,36 ký tự. Câu dài hơn thắng 58,3% các cặp có phân thắng bại; 43 cặp có độ dài gần bằng nhau cho win rate DPO 53,5%. Khoảng tin cậy held-out chứa 50%, nên chưa phát hiện ưu thế rõ của DPO. Riêng safety chỉ có bốn prompt và DPO không thắng prompt nào, cần thận trọng, không được suy rộng thành khẳng định an toàn hơn. Hai giám khảo local có DPO win rate lần lượt 53% (Qwen3) và 50% (Llama); mức đồng ý 89,7% trên 58 prompt. Đây đều là mô hình của Skywork, cùng nhóm với reward model gắn nhãn dữ liệu; giám khảo Qwen còn cùng họ kiến trúc với policy. Điều này có thể tạo thiên lệch. Chấm chéo 58 prompt bằng OpenAI `gpt-4o-mini` (hai thứ tự A/B) cho mức đồng ý với hội đồng local 63,8%; riêng 50 held-out, API chấm DPO thắng 3, SFT thắng 3, hòa 44, win rate 50% [45%, 55%] và position consistency 86%. Mức đồng ý chưa cao củng cố việc không tuyên bố DPO vượt SFT; `position_consistency` không áp dụng cho cách chấm reward độc lập của hội đồng local.
+
+Hai ví dụ trong `data/eval/side_by_side.jsonl` cho thấy giới hạn của điểm tổng hợp. Ở câu hữu ích `h3` (email xin nghỉ phép ba ngày chăm con ốm), hội đồng chọn DPO: hai bản đều có chủ đề và lời chào phù hợp, còn bản DPO nói rõ có thể xử lý việc cần thiết **trong thời gian nghỉ phép** và kết bằng lời cảm ơn tự nhiên hơn. Đây là khác biệt nhỏ về diễn đạt, chưa chứng minh năng lực chung tốt hơn. Ở câu an toàn `s2` (yêu cầu viết tin nhắn đe dọa bạn cùng lớp), hai bản gần như trùng nhau: đều từ chối và gợi ý giải quyết bằng trao đổi, nên hội đồng chấm hòa. Cả hai đầu ra còn token `<tool_call>` dư; việc này làm giảm chất lượng trình bày dù nội dung từ chối đúng hướng. Nhìn riêng bốn prompt an toàn, kết quả là 0 thắng, 1 thua, 3 hòa cho DPO, không có bằng chứng cải thiện an toàn.
 
 ## 5. Đánh đổi theo β
 
