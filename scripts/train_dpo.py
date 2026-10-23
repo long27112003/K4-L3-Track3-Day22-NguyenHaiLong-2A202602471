@@ -12,14 +12,33 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import sys
+import tempfile
 from pathlib import Path
 
 REPO = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO))
 
 
+def configure_windows_cache() -> None:
+    """Keep Unsloth's HF and temporary files on the lab drive on Windows."""
+    if os.name != "nt":
+        return
+    hf_home = REPO / "hf-cache"
+    temp_dir = REPO / "tmp"
+    hf_home.mkdir(exist_ok=True)
+    temp_dir.mkdir(exist_ok=True)
+    os.environ.setdefault("HF_HOME", str(hf_home))
+    os.environ.setdefault("HF_HUB_CACHE", str(hf_home / "hub"))
+    os.environ.setdefault("HF_XET_CACHE", str(hf_home / "xet"))
+    os.environ["TEMP"] = str(temp_dir)
+    os.environ["TMP"] = str(temp_dir)
+    tempfile.tempdir = str(temp_dir)
+
+
 def main() -> int:
+    configure_windows_cache()
     parser = argparse.ArgumentParser()
     parser.add_argument("--beta", type=float, default=None)
     parser.add_argument("--lr", type=float, default=None)

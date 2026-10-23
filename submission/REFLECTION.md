@@ -69,7 +69,7 @@ Trong phép so sánh này, RPO cho câu trả lời dài nhất (458,55 ký tự
 
 NB5 xuất mô hình SFT+DPO sang Q4_K_M, file cục bộ khoảng 2.497 MB. `data/eval/deploy_meta.json` giữ prompt Bubble Sort và cả hai câu trả lời HF/GGUF. Cả hai giải thích đúng ý so sánh cặp phần tử và lặp đến khi sắp xếp xong. Tuy nhiên output có token `<tool_call>`/`</tool_call>` dư, cần tinh chỉnh template hoặc hậu xử lý trước khi dùng thực tế.
 
-NB7 chạy 60 bước GRPO, bốn generations mỗi prompt trên `vuongtsc/vi-gsm8k-agentic`; kiểm tra 100 câu, accuracy trước 51% và sau 49%. Chênh −2 điểm phần trăm nằm trong nhiễu lấy mẫu: stderr xấp xỉ 5 điểm phần trăm ở mỗi tỷ lệ. Không có bằng chứng lần chạy này cải thiện suy luận; hình `screenshots/08-grpo-reward.png` minh họa tiến trình reward, còn kết luận về chất lượng phải dựa vào tập kiểm tra. Cần lặp seed hoặc tăng tập test trước khi diễn giải thay đổi nhỏ này.
+NB7 chạy 60 bước GRPO, bốn generations mỗi prompt trên `vuongtsc/vi-gsm8k-agentic`; kiểm tra 100 câu, accuracy trước 51% và sau 49%. Chênh −2 điểm phần trăm nằm trong nhiễu lấy mẫu: stderr xấp xỉ 5 điểm phần trăm ở mỗi tỷ lệ. Hình `screenshots/08-grpo-reward.png` cho thấy mean reward dao động khoảng 0,3–1,3 và kết thúc xấp xỉ 1,0; vùng `reward_std` khá rộng, không có xu thế tăng đều. Reward được cộng từ tính đúng và định dạng, nên chỉ nhìn tổng reward không xác định được thành phần nào tăng nhanh hơn hoặc có reward hacking hay không. Không có bằng chứng lần chạy này cải thiện suy luận; kết luận về chất lượng phải dựa vào tập kiểm tra. Cần lặp seed hoặc tăng tập test trước khi diễn giải thay đổi nhỏ này. GSM8K tiếng Anh ở NB6 khác dữ liệu GRPO tiếng Việt về ngôn ngữ và cách chấm, không nên so trực tiếp hai accuracy.
 
 ## Tình trạng bonus
 
