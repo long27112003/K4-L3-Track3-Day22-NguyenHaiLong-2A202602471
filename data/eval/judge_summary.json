@@ -1,6 +1,6 @@
 {
   "judge": "rm-panel:Skywork/Skywork-Reward-V2-Qwen3-4B+Skywork/Skywork-Reward-V2-Llama-3.2-3B",
-  "outputs_sha256": "c87129ca33394b4150173dcd06d3fa586f075775b23c2319f765d139254e537a",
+  "outputs_sha256": "9d363240e6a1e1d7e6b10547f2679f03563f0b35e4039d4eab2d57e20daf5ab2",
   "sanity_accuracy": 1.0,
   "sanity": {
     "Skywork/Skywork-Reward-V2-Qwen3-4B": 1.0,

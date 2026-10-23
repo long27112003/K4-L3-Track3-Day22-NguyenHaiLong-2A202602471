@@ -100,7 +100,7 @@ MD.cleanup()
 records = [{**p, "sft": s, "dpo": d} for p, s, d in zip(PROMPTS, sft_out, dpo_out)]
 # New outputs invalidate the old summary; saved verdicts record which outputs they judged.
 (C.EVAL_DIR / "judge_summary.json").unlink(missing_ok=True)
-with open(C.EVAL_DIR / "side_by_side.jsonl", "w", encoding="utf-8") as f:
+with open(C.EVAL_DIR / "side_by_side.jsonl", "w", encoding="utf-8", newline="\n") as f:
     for r in records:
         f.write(json.dumps(r, ensure_ascii=False) + "\n")
 OUTPUTS_SHA = hashlib.sha256((C.EVAL_DIR / "side_by_side.jsonl").read_bytes()).hexdigest()
