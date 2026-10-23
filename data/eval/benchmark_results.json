@@ -1,0 +1,37 @@
+{
+  "compute_tier": "T4",
+  "dtype": "bfloat16",
+  "chat_template": true,
+  "results": [
+    {
+      "benchmark": "IFEval",
+      "task": "ifeval",
+      "limit_per_subtask": 200,
+      "sft": 0.49,
+      "sft_stderr": 0.035436970729343674,
+      "dpo": 0.5,
+      "dpo_stderr": 0.0354440602504168,
+      "delta": 0.010000000000000009
+    },
+    {
+      "benchmark": "GSM8K",
+      "task": "gsm8k",
+      "limit_per_subtask": 250,
+      "sft": 0.82,
+      "sft_stderr": 0.024346890650293534,
+      "dpo": 0.852,
+      "dpo_stderr": 0.022503547243806148,
+      "delta": 0.03200000000000003
+    },
+    {
+      "benchmark": "Global-MMLU-vi",
+      "task": "global_mmlu_full_vi",
+      "limit_per_subtask": 10,
+      "sft": 0.24210526315789474,
+      "sft_stderr": 0.01789129653892205,
+      "dpo": 0.24210526315789474,
+      "dpo_stderr": 0.01789129653892205,
+      "delta": 0.0
+    }
+  ]
+}

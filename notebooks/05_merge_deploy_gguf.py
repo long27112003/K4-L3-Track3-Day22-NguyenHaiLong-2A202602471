@@ -1,5 +1,9 @@
 # ---
 # jupyter:
+#   kernelspec:
+#     display_name: Day22 GPU
+#     language: python
+#     name: day22-local
 #   jupytext:
 #     formats: py:percent
 # ---
@@ -12,6 +16,24 @@
 # **Lỗi của lab cũ:** NB5 chỉ nạp adapter **SFT** rồi gộp, nên file GGUF không có DPO.
 # Ở đây ta nạp `adapters/dpo` (adapter config trỏ tới `models/sft-merged`), tức là
 # SFT + DPO, rồi xuất file. Có một bước kiểm tra để chắc chắn adapter DPO thực sự được nạp.
+
+# %% [markdown]
+# ## Chuẩn bị gói chạy GGUF (chạy một lần trong kernel Day22 GPU)
+#
+# Dùng wheel CPU chính thức của llama-cpp-python để kiểm tra một câu trả lời GGUF
+# trên Windows. Việc xuất GGUF vẫn dùng GPU của Unsloth ở các ô bên dưới.
+
+# %%
+import importlib.util
+import subprocess
+import sys
+
+if importlib.util.find_spec("llama_cpp") is None:
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install", "--only-binary=llama-cpp-python",
+        "--extra-index-url", "https://abetlen.github.io/llama-cpp-python/whl/cpu",
+        "llama-cpp-python>=0.3.16,<1.0",
+    ])
 
 # %%
 import json
@@ -93,7 +115,9 @@ MD.cleanup()
 # %%
 from llama_cpp import Llama
 
-llm = Llama(model_path=str(gguf_path), n_ctx=C.MAX_LEN, n_gpu_layers=-1, verbose=False)
+# The prebuilt Windows llama-cpp-python wheel is CPU-only; one smoke prompt is
+# still sufficient to verify that the quantized GGUF contains the DPO adapter.
+llm = Llama(model_path=str(gguf_path), n_ctx=C.MAX_LEN, n_gpu_layers=0, verbose=False)
 resp = llm.create_completion(smoke_text, max_tokens=SMOKE_TOKENS, temperature=0.0, stop=stop_tokens)
 gguf_answer = resp["choices"][0]["text"].strip()
 print(f"PROMPT: {SMOKE_PROMPT}\n\nGGUF Q4_K_M:\n{gguf_answer}\n\nusage: {resp['usage']}")

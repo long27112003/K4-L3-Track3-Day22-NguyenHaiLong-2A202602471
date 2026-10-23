@@ -9,14 +9,14 @@
     "sigmoid"
   ],
   "epochs": 1.0,
-  "final_train_loss": 0.6783604907989502,
-  "first_logged_loss": 0.6928884029388428,
-  "end_chosen_reward": 0.25086222218815235,
-  "end_rejected_reward": 0.20380211947485805,
-  "end_reward_gap": 0.047060102899558844,
-  "eval_chosen_reward": 0.28172355277929456,
-  "eval_rejected_reward": 0.21505163252120837,
-  "eval_reward_gap": 0.06667191977612674,
-  "eval_reward_accuracy": 0.7,
+  "final_train_loss": 0.6865262722969055,
+  "first_logged_loss": 0.7095321655273438,
+  "end_chosen_reward": 0.17362995872972534,
+  "end_rejected_reward": 0.11443666637933347,
+  "end_reward_gap": 0.05919329300522804,
+  "eval_chosen_reward": 0.17722537361318247,
+  "eval_rejected_reward": 0.13580251349019817,
+  "eval_reward_gap": 0.0414228602219373,
+  "eval_reward_accuracy": 0.62,
   "diagnosis": "INTENDED"
 }

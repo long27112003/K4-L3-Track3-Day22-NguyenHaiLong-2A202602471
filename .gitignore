@@ -38,6 +38,12 @@ wandb/
 # HuggingFace cache
 .cache/
 hf_cache/
+hf-cache/
+jupyter-data/
+jupyter-runtime/
+tmp/
+unsloth_compiled_cache/
+notebooks/unsloth_compiled_cache/
 
 # Env / secrets
 .env

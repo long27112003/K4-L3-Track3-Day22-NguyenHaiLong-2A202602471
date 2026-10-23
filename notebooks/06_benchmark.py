@@ -1,5 +1,9 @@
 # ---
 # jupyter:
+#   kernelspec:
+#     display_name: Day22 GPU
+#     language: python
+#     name: day22-local
 #   jupytext:
 #     formats: py:percent
 # ---
@@ -24,11 +28,25 @@
 # > Điểm có thể **giảm** sau DPO (alignment tax, tức thuế căn chỉnh). Với limit nhỏ, chênh lệch ±2–3 điểm
 # > thường nằm trong nhiễu: xem cột `stderr` trước khi kết luận.
 
+# %% [markdown]
+# ## Chuẩn bị lm-eval (chạy một lần trong kernel Day22 GPU)
+
 # %%
+import importlib.util
 import json
 import os
 import subprocess
 import sys
+
+if importlib.util.find_spec("lm_eval") is None:
+    subprocess.check_call([
+        sys.executable, "-m", "pip", "install",
+        "lm-eval[ifeval,math]>=0.4.13,<0.5",
+    ])
+
+# %%
+import json
+import os
 from pathlib import Path
 
 ROOT = next(p for p in (Path.cwd(), *Path.cwd().parents) if (p / "lab22" / "config.py").exists())
@@ -53,7 +71,7 @@ BENCHMARKS = {
     "Global-MMLU-vi": ("global_mmlu_full_vi", 0, 40 if BIG else 10, "acc,none"),
 }
 DTYPE = "bfloat16" if torch.cuda.is_bf16_supported() else "float16"
-BATCH = "auto" if BIG else "4"
+BATCH = os.environ.get("BENCH_BATCH", "auto" if BIG else "1")
 for name, (task, shots, limit, _metric) in BENCHMARKS.items():
     print(f"{name:15s} task={task} fewshot={shots} limit/subtask={limit or 'all'}")
 
@@ -67,7 +85,8 @@ def run_lm_eval(label: str, task: str, shots: int, limit: int | None) -> dict:
         model_args += f",peft={C.DPO_ADAPTER}"
     out_dir = C.EVAL_DIR / "lm_eval" / f"{label}-{task}"
     cmd = [
-        "lm_eval", "--model", "hf", "--model_args", model_args,
+        str(Path(sys.executable).with_name("lm_eval.exe" if os.name == "nt" else "lm_eval")),
+        "--model", "hf", "--model_args", model_args,
         "--tasks", task, "--num_fewshot", str(shots),
         "--apply_chat_template", "--batch_size", BATCH,
         "--device", "cuda:0", "--seed", str(C.SEED), "--output_path", str(out_dir),

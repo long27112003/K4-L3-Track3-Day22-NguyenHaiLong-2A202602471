@@ -1,5 +1,9 @@
 # ---
 # jupyter:
+#   kernelspec:
+#     display_name: Day22 GPU
+#     language: python
+#     name: day22-local
 #   jupytext:
 #     formats: py:percent
 # ---
@@ -97,7 +101,7 @@ assert correctness_reward([[{"content": "Đáp số: 7"}]], ["8"]) == [0.0]
 # %%
 def accuracy(model, tokenizer) -> float:
     prompts = [r["prompt"][0]["content"] for r in test_ds]
-    outs = MD.generate(model, tokenizer, prompts, max_new_tokens=320)
+    outs = MD.generate(model, tokenizer, prompts, max_new_tokens=320, batch_size=1)
     return sum(MR.is_correct(MR.extract_answer(o), r["answer"]) for o, r in zip(outs, test_ds)) / len(test_ds)
 
 
