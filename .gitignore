@@ -56,3 +56,6 @@ notebooks/unsloth_compiled_cache/
 .idea/
 .vscode/
 *.swp
+
+# Local training logs
+beta-*.log

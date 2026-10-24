@@ -2,7 +2,7 @@
 
 **Họ tên:** Nguyễn Hải Long · **MSSV:** 2A202602471
 
-**Track:** 3 · **Ngày cập nhật:** 2026-10-24
+**Track:** 3
 **Môi trường thực chạy:** Windows, NVIDIA GeForce RTX 3060 12 GB, Python 3.11, tier cấu hình T4.
 
 Các số liệu bên dưới lấy từ JSON, notebook và hình trong repository. Trọng số SFT/DPO và GGUF được giữ cục bộ vì kích thước lớn; không có trong GitHub.
@@ -41,8 +41,15 @@ Hai ví dụ trong `data/eval/side_by_side.jsonl` cho thấy giới hạn của 
 
 ## 5. Đánh đổi theo β
 
-Chưa chạy `make beta-sweep`, nên không có số đo thật cho β = 0,05 và 0,5. Giá trị β = 0,1 ở lần DPO chính cho margin held-out +0,0414 và accuracy 62%, nhưng không thay thế được phép so sánh ba lần huấn luyện cùng thiết lập. Giả thuyết: β thấp có thể cho policy đi xa reference hơn, trong khi β cao hạn chế thay đổi; hướng của reward gap và chất lượng sinh phải được kiểm chứng từ từng run, không suy ra trực tiếp từ β. Khi có đủ tài nguyên GPU, cần chạy ba cấu hình, giữ cố định chia dữ liệu và seed, rồi vẽ `bonus-beta-sweep.png` từ các `dpo_metrics.json` mới.
+Tôi so sánh ba cấu hình DPO β = 0,05; 0,1; 0,5 trên cùng mô hình SFT đã gộp, tập preference chia cố định theo prompt, seed, learning rate 5e-6, một epoch và loss sigmoid. Hai giá trị 0,05 và 0,5 được huấn luyện riêng; dòng 0,1 dùng lại **chính lần NB3 gốc** với cùng cấu hình, không giả vờ là một lần train mới. Số đo lấy từ `adapters/dpo-b*/dpo_metrics.json`; hình `screenshots/bonus-beta-sweep.png` vẽ margin, hai reward và accuracy held-out.
 
+| β | Reward chosen / rejected held-out | Gap held-out | Accuracy held-out | Chẩn đoán |
+|---:|---:|---:|---:|---|
+| 0,05 | 0,0913 / 0,0686 | +0,0227 | 59% | INTENDED |
+| 0,1 | 0,1772 / 0,1358 | +0,0414 | 62% | INTENDED |
+| 0,5 | 0,7889 / 0,6386 | +0,1503 | 64% | INTENDED |
+
+Cả ba lần chosen cao hơn rejected trên 100 cặp held-out, nhưng cả hai reward đều dương; không nên viết rằng policy đã hạ tuyệt đối rejected. Margin tăng theo β có phần là hệ quả của định nghĩa reward ngầm `β × log(policy/reference)`, nên không thể nhìn đường margin rồi kết luận β cao cho câu trả lời hay hơn. Accuracy tăng từ 59% lên 64%, tức năm cặp trên 100, nhưng sai số lấy mẫu của từng tỷ lệ xấp xỉ năm điểm phần trăm; thí nghiệm này chỉ gợi ý β = 0,5 phân biệt preference tốt hơn trên split hiện tại. Tôi chưa chấm side-by-side chất lượng sinh cho riêng β = 0,05 và 0,5, nên không dùng sweep để tuyên bố β = 0,5 thắng người dùng hoặc an toàn hơn. Nếu chọn β cho triển khai, tôi sẽ giữ thêm một tập prompt khác và nhiều seed, đồng thời đối chiếu độ dài, win rate và safety thay vì tối ưu một metric trên đúng split này.
 ## 6. Quyết định quan trọng nhất
 
 Tôi dùng learning rate 5e-6 với β = 0,1 và kiểm tra cả reward train lẫn held-out trước khi kết luận. Phương án thay thế là dùng learning rate nhỏ hơn, chẳng hạn 5e-7, hoặc tăng lên 1e-5. Với một epoch và 800 cặp, mức quá nhỏ có nguy cơ cho adapter LoRA thay đổi ít; mức quá lớn có thể làm kết quả thiếu ổn định và tăng sai lệch so với reference. Tôi chọn 5e-6 như một cấu hình thực nghiệm vừa phải, không khẳng định đó là tối ưu vì chưa có sweep learning rate. Loss ghi nhận giảm từ 0,7095 xuống 0,6865; gap held-out là +0,0414 với accuracy 62%. Các số này cho thấy mô hình học được một phần tín hiệu ưu tiên. Tuy nhiên, so sánh sinh câu trả lời chỉ đạt DPO win rate 52%, khoảng tin cậy [43%, 62%] bao gồm mức hòa 50%; không thể coi đó là bằng chứng DPO vượt hẳn SFT. Chấm chéo bằng API thuộc họ khác cho mức đồng ý chỉ 63,8%, nên tôi càng cần thận trọng. Nếu làm lại, tôi sẽ chạy nhiều seed và β-sweep. Tôi cũng sẽ rà các câu safety thua, vì điểm trung bình thuận lợi không bù được lỗi ở nhóm này. Quyết định này giúp báo cáo trung thực về hiệu quả, giới hạn thống kê và rủi ro của mô hình.
@@ -81,7 +88,7 @@ NB7 chạy 60 bước GRPO, bốn generations mỗi prompt trên `vuongtsc/vi-gs
 - [x] NB5: GGUF Q4_K_M và so sánh HF/GGUF.
 - [x] NB6: ba benchmark, stderr và diễn giải.
 - [x] NB7: reward curve, accuracy trước/sau và nhiễu.
-- [ ] β-sweep: chưa chạy ba giá trị β.
+- [x] β-sweep: ba giá trị β, metrics held-out, biểu đồ và phân tích ở §5; β = 0,1 dùng lại lần NB3 gốc cùng cấu hình.
 - [x] Chấm chéo API: OpenAI `gpt-4o-mini`, agreement 63,8% trên 58 prompt.
 - [x] HF Hub: adapter DPO, tokenizer và model card công khai tại https://huggingface.co/long2711/lab22-dpo-vn-long-2A202602471. Adapter cần mô hình SFT đã gộp từ NB1 để tái tạo pipeline.
 
